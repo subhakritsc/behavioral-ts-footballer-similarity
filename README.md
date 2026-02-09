@@ -15,9 +15,9 @@ cd behavioral-ts-footballer-similarity
 pip install streamlit pandas matplotlib gdown
 
 # 3. Download the Dataset from Google Drive
-# Note: This downloads the required CSV files into the project folder
+# NOTE: gdown creates a folder. We move files out so app.py can find them.
 gdown --folder 1wAz7XDkakamk8NufsGW1lhy1spV2w_hL
-
+mv */*.csv . 2>/dev/null || true
 # 4. Run the Application
 streamlit run app.py
 ```
