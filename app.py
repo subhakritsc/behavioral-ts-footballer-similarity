@@ -22,13 +22,6 @@ def load_data():
 
 
 # ===== Utilities =====
-def get_position(pos_df, player):
-    row = pos_df[pos_df.player == player]
-    if len(row) > 0:
-        return row.iloc[0]["position"]
-    return "Unknown"
-
-
 def get_ts(df, player):
     p = df[df.player == player]
 
@@ -60,6 +53,12 @@ def plot_compare(ts_df, p1, p2, feature):
 ts_df, pos_df, top3_df = load_data()
 
 players = sorted(pos_df["player"].unique())
+player_pos_map = dict(zip(pos_df["player"], pos_df["position"]))
+
+
+def format_func(player_name):
+    return f"{player_name} ({player_pos_map.get(player_name, 'Unknown')})"
+
 
 st.title("Player Similarity via Behavioral Time Series")
 
@@ -67,7 +66,11 @@ col1, col2 = st.columns([1, 2])
 
 # ===== Left Panel =====
 with col1:
-    selected_player = st.selectbox("Select Player", players)
+    selected_player = st.selectbox(
+        "Select Player",
+        players,
+        format_func=format_func
+    )
 
     sims = top3_df[top3_df.player == selected_player]
 
@@ -78,7 +81,7 @@ with col1:
         sp = row["similar_player"]
         sim_players.append(sp)
 
-        pos = get_position(pos_df, sp)
+        pos = player_pos_map.get(sp, "Unknown")
         st.write(f"- {sp} ({pos})")
 
 
@@ -87,13 +90,14 @@ with col2:
     if len(sim_players) > 0:
         selected_b = st.selectbox(
             "Compare with (Top 3 only)",
-            sim_players
+            sim_players,
+            format_func=format_func
         )
 
         feature = st.selectbox("Select Feature to Compare", FEATURES)
 
-        pos_a = get_position(pos_df, selected_player)
-        pos_b = get_position(pos_df, selected_b)
+        pos_a = player_pos_map.get(selected_player, "Unknown")
+        pos_b = player_pos_map.get(selected_b, "Unknown")
 
         st.markdown(f"### {selected_player} ({pos_a}) vs {selected_b} ({pos_b})")
 
